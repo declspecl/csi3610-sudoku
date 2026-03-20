@@ -3,6 +3,29 @@ use crate::board::digit::Digit;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DigitCandidateSet(u16);
 
+/// wrapper type to avoid Box<dyn Iterator<Item = Digit>>
+pub struct DigitCandidateIter(u16);
+
+impl Iterator for DigitCandidateIter {
+    type Item = Digit;
+
+    // ref: https://stackoverflow.com/questions/67990260/how-to-iterate-over-subsets-of-a-bitwise-mask
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0 == 0 {
+            return None;
+        }
+
+        // 3 trailing zero means next lowest digit is 3
+        let bit = self.0.trailing_zeros();
+
+        // clears all the low bits up to and including the bit at the position `bit` above
+        // effectively sets the bitmask such that the new lowest bit is the next lowest digit in the set
+        self.0 &= self.0 - 1;
+
+        return Some(Digit::ALL[(bit - 1) as usize]);
+    }
+}
+
 impl DigitCandidateSet {
     pub const ALL: Self = Self(0b_0000_0011_1111_1110);
     pub const NONE: Self = Self(0);
@@ -33,6 +56,10 @@ impl DigitCandidateSet {
 
     pub const fn is_solved(self) -> bool {
         return self.candidates_count() == 1;
+    }
+
+    pub fn iter(self) -> DigitCandidateIter {
+        return DigitCandidateIter(self.0);
     }
 
     pub fn solved_digit(self) -> Option<Digit> {
