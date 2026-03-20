@@ -1,6 +1,21 @@
 [package]
-name = "csi3610-sudoku"
+name = "ssolvent"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "ssolvent"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ssolvent"
+path = "src/main.rs"
+
 [dependencies]
+
+[dev-dependencies]
+criterion = { version = "0.8.2", features = ["html_reports"] }
+
+[[bench]]
+name = "benchmark"
+harness = false
