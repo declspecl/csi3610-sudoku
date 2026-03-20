@@ -43,11 +43,11 @@ impl Board {
             let is_row_boundary = board_row > 0;
 
             if is_box_row_boundary {
-                writeln!(out, "===+===+=== + ===+===+=== + ===+===+===").unwrap();
+                writeln!(out, "===+===+=== ++ ===+===+=== ++ ===+===+===").unwrap();
                 writeln!(out, "").unwrap();
-                writeln!(out, "===+===+=== + ===+===+=== + ===+===+===").unwrap();
+                writeln!(out, "===+===+=== ++ ===+===+=== ++ ===+===+===").unwrap();
             } else if is_row_boundary {
-                writeln!(out, "---+---+--- + ---+---+--- + ---+---+---").unwrap();
+                writeln!(out, "---+---+--- ++ ---+---+--- ++ ---+---+---").unwrap();
             }
 
             for candidate_row in 0..3u8 {
@@ -56,7 +56,7 @@ impl Board {
                     let is_col_boundary = board_col > 0;
 
                     if is_box_col_boundary {
-                        write!(out, " | ").unwrap();
+                        write!(out, " || ").unwrap();
                     } else if is_col_boundary {
                         write!(out, "|").unwrap();
                     }
