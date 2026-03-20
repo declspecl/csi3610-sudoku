@@ -3,9 +3,7 @@ use crate::board::{board::Board, position::{MAX_POSITION_ID, Position}};
 /// uses backtracing with MRV heuristic to solve the puzzle
 /// ref: https://www.geeksforgeeks.org/artificial-intelligence/explain-the-concept-of-backtracking-search-and-its-role-in-finding-solutions-to-csps/
 pub fn solve(board: &Board) -> Option<Board> {
-    if board.has_contradiction() {
-        return None;
-    } else if board.is_solved() {
+    if board.is_solved() {
         return Some(board.to_owned());
     }
 

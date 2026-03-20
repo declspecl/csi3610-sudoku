@@ -1,4 +1,4 @@
-use crate::board::{board::BOARD_LENGTH, digit::Digit};
+use crate::board::board::BOARD_LENGTH;
 
 
 /// Unique ID of a position on the board
@@ -54,12 +54,12 @@ pub struct Position {
 }
 
 impl Position {
-    const BOX_ID_BY_POSITION_ID_LUT: LookupTableByPositionId<Digit> = build_box_id_by_position_id_lut();
+    const BOX_ID_BY_POSITION_ID_LUT: LookupTableByPositionId<u8> = build_box_id_by_position_id_lut();
     const ALL_PEERS_MASK_BY_POSITION_ID_LUT: LookupTableByPositionId<PeersMaskBits> = build_all_peers_mask_by_position_id_lut();
 
-    pub const fn new(row: Digit, col: Digit) -> Self {
-        let row_offset = (row.as_u8() - 1) * BOARD_LENGTH;
-        let col_offset = col.as_u8() - 1;
+    pub const fn new(row: u8, col: u8) -> Self {
+        let row_offset = (row - 1) * BOARD_LENGTH;
+        let col_offset = col - 1;
 
         return Self { id: row_offset + col_offset };
     }
@@ -76,89 +76,28 @@ impl Position {
         return PeerIds::new(Self::ALL_PEERS_MASK_BY_POSITION_ID_LUT[self.id as usize]);
     }
 
-    pub const fn row(self) -> Digit {
-        return match self.id / BOARD_LENGTH {
-            0 => Digit::ONE,
-            1 => Digit::TWO,
-            2 => Digit::THREE,
-            3 => Digit::FOUR,
-            4 => Digit::FIVE,
-            5 => Digit::SIX,
-            6 => Digit::SEVEN,
-            7 => Digit::EIGHT,
-            8 => Digit::NINE,
-            _ => unreachable!(),
-        };
+    pub const fn row(self) -> u8 {
+        return self.id / BOARD_LENGTH + 1;
     }
 
-    pub const fn col(self) -> Digit {
-        return match self.id % BOARD_LENGTH {
-            0 => Digit::ONE,
-            1 => Digit::TWO,
-            2 => Digit::THREE,
-            3 => Digit::FOUR,
-            4 => Digit::FIVE,
-            5 => Digit::SIX,
-            6 => Digit::SEVEN,
-            7 => Digit::EIGHT,
-            8 => Digit::NINE,
-            _ => unreachable!(),
-        };
+    pub const fn col(self) -> u8 {
+        return self.id % BOARD_LENGTH + 1;
     }
 
-    pub const fn box_id(self) -> Digit {
+    pub const fn box_id(self) -> u8 {
         return Self::BOX_ID_BY_POSITION_ID_LUT[self.id as usize];
     }
 }
 
-const fn build_box_id_by_position_id_lut() -> LookupTableByPositionId<Digit> {
-    let mut table: LookupTableByPositionId<Digit> = [Digit::ONE; TOTAL_POSITIONS as usize];
+const fn build_box_id_by_position_id_lut() -> LookupTableByPositionId<u8> {
+    let mut table: LookupTableByPositionId<u8> = [0; TOTAL_POSITIONS as usize];
 
     let mut position_id: PositionId = 0;
     while position_id <= MAX_POSITION_ID {
         let position = Position::from_id(position_id);
-
-        let box_id = match (position.row(), position.col()) {
-            (
-                Digit::ONE | Digit::TWO | Digit::THREE,
-                Digit::ONE | Digit::TWO | Digit::THREE
-            ) => Digit::ONE,
-            (
-                Digit::ONE | Digit::TWO | Digit::THREE,
-                Digit::FOUR | Digit::FIVE | Digit::SIX
-            ) => Digit::TWO,
-            (
-                Digit::ONE | Digit::TWO | Digit::THREE,
-                Digit::SEVEN | Digit::EIGHT | Digit::NINE
-            ) => Digit::THREE,
-            (
-                Digit::FOUR | Digit::FIVE | Digit::SIX,
-                Digit::ONE | Digit::TWO | Digit::THREE
-            ) => Digit::FOUR,
-            (
-                Digit::FOUR | Digit::FIVE | Digit::SIX,
-                Digit::FOUR | Digit::FIVE | Digit::SIX
-            ) => Digit::FIVE,
-            (
-                Digit::FOUR | Digit::FIVE | Digit::SIX,
-                Digit::SEVEN | Digit::EIGHT | Digit::NINE
-            ) => Digit::SIX,
-            (
-                Digit::SEVEN | Digit::EIGHT | Digit::NINE,
-                Digit::ONE | Digit::TWO | Digit::THREE
-            ) => Digit::SEVEN,
-            (
-                Digit::SEVEN | Digit::EIGHT | Digit::NINE,
-                Digit::FOUR | Digit::FIVE | Digit::SIX
-            ) => Digit::EIGHT,
-            (
-                Digit::SEVEN | Digit::EIGHT | Digit::NINE,
-                Digit::SEVEN | Digit::EIGHT | Digit::NINE
-            ) => Digit::NINE,
-            _ => unreachable!(),
-        };
-
-        table[position_id as usize] = box_id;
+        let row0 = (position.row() - 1) / 3;
+        let col0 = (position.col() - 1) / 3;
+        table[position_id as usize] = row0 * 3 + col0 + 1;
         position_id += 1;
     }
 
@@ -181,15 +120,15 @@ const fn build_all_peers_mask_by_position_id_lut() -> LookupTableByPositionId<Pe
             if peer_id != position_id {
                 let peer_position = Position::from_id(peer_id);
 
-                if peer_position.row().as_u8() == position.row().as_u8() {
+                if peer_position.row() == position.row() {
                     row_peers_mask |= 1 << peer_id;
                 }
 
-                if peer_position.col().as_u8() == position.col().as_u8() {
+                if peer_position.col() == position.col() {
                     col_peers_mask |= 1 << peer_id;
                 }
 
-                if peer_position.box_id().as_u8() == position.box_id().as_u8() {
+                if peer_position.box_id() == position.box_id() {
                     box_peers_mask |= 1 << peer_id;
                 }
             }
