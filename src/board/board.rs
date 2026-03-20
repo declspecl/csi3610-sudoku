@@ -21,6 +21,11 @@ impl Board {
 
     pub fn solve_cell(&mut self, position: Position, digit: Digit) {
         self.cells[position.id() as usize] = DigitCandidateSet::of(digit);
+
+        for peer_id in position.peer_ids() {
+            let cell = self.cells[peer_id as usize];
+            self.cells[peer_id as usize] = cell.remove(digit);
+        }
     }
 
     pub fn is_solved(&self) -> bool {
