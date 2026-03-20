@@ -11,9 +11,16 @@ pub fn solve(board: &Board) -> Option<Board> {
 
     for position_id in 0..=MAX_POSITION_ID {
         let count = board.at(Position::from_id(position_id)).candidates_count();
+        if count == 0 {
+            return None;
+        }
 
         if count > 1 && count < fewest_candidates_count {
             (fewest_candidates_position_id, fewest_candidates_count) = (position_id, count);
+
+            if count == 2 {
+                break;
+            }
         }
     }
 
