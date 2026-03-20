@@ -12,7 +12,19 @@ impl Digit {
     pub const EIGHT: Self = Digit(8);
     pub const NINE: Self = Digit(9);
 
-    pub fn as_u8(self) -> u8 {
+    pub const ALL: [Self; 9] = [
+        Self::ONE,
+        Self::TWO,
+        Self::THREE,
+        Self::FOUR,
+        Self::FIVE,
+        Self::SIX,
+        Self::SEVEN,
+        Self::EIGHT,
+        Self::NINE,
+    ];
+
+    pub const fn as_u8(self) -> u8 {
         return self.0;
     }
 }

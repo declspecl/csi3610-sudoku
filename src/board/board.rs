@@ -1,7 +1,7 @@
-use crate::board::{digit_candidate_set::DigitCandidateSet, position::Position};
+use crate::board::{digit::Digit, digit_candidate_set::DigitCandidateSet, position::Position};
 
-const BOARD_LENGTH: u8 = 9;
-const BOARD_CELL_COUNT: u8 = BOARD_LENGTH * BOARD_LENGTH;
+pub const BOARD_LENGTH: u8 = 9;
+pub const BOARD_CELL_COUNT: u8 = BOARD_LENGTH * BOARD_LENGTH;
 
 #[derive(Debug)]
 pub struct Board {
@@ -9,17 +9,23 @@ pub struct Board {
 }
 
 impl Board {
+    const EMPTY_CELLS: [DigitCandidateSet; BOARD_CELL_COUNT as usize] = [DigitCandidateSet::ALL; BOARD_CELL_COUNT as usize];
+
     pub fn new() -> Self {
-        return Self { cells: [DigitCandidateSet::ALL; BOARD_CELL_COUNT as usize] };
+        return Self { cells: Self::EMPTY_CELLS };
     }
 
     pub fn at(&self, position: Position) -> DigitCandidateSet {
-        let row_offset = (BOARD_LENGTH * (position.row.as_u8() - 1)) as usize;
-        let col_offset = (position.col.as_u8() - 1) as usize;
+        return self.cells[position.id() as usize];
+    }
 
-        return self.cells.get(row_offset + col_offset)
-            .unwrap()
-            .to_owned();
+    pub fn solve_cell(&mut self, position: Position, digit: Digit) {
+        self.cells[position.id() as usize] = DigitCandidateSet::of(digit);
+    }
+
+    pub fn is_solved(&self) -> bool {
+        return self.cells.iter()
+            .all(|cell| cell.is_solved());
     }
 }
 
