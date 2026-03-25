@@ -25,7 +25,8 @@ fn bench_category(c: &mut Criterion, category: &str, puzzles: &[Board]) {
             let board = &puzzles[index];
             index = (index + 1) % puzzle_count;
 
-            black_box(solve(board));
+            let solution = black_box(solve(board));
+            debug_assert!(solution.is_some(), "Expected a solution");
         })
     });
 }

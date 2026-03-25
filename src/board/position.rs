@@ -1,8 +1,11 @@
 use crate::board::board::BOARD_LENGTH;
 
 
-/// Unique ID of a position on the board
+/// Unique ID of a position on the board (0-80)
 pub type PositionId = u8;
+
+/// The ID of a box on the board (1-9), where 1 is the top left box and 9 is the bottom right box
+pub type BoxId = u8;
 
 /// Bitmask of the peers of a position
 /// (PeersMask >> PositionId) & 0b1 == 0b1 means the position is a peer of the position with the given ID
@@ -22,6 +25,8 @@ pub const TOTAL_POSITIONS: u8 = BOARD_LENGTH * BOARD_LENGTH;
 pub const MAX_POSITION_ID: PositionId = TOTAL_POSITIONS - 1;
 
 
+/// Bitmask of the peers of a position
+/// (PeersMask >> PositionId) & 0b1 == 0b1 means the position is a peer of the position with the given ID
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PeerIds {
     mask_bits: PeersMaskBits,
@@ -89,6 +94,7 @@ impl Position {
     }
 }
 
+/// build lookup table that answers "what box is this cell in?" for each cell
 const fn build_box_id_by_position_id_lut() -> LookupTableByPositionId<u8> {
     let mut table: LookupTableByPositionId<u8> = [0; TOTAL_POSITIONS as usize];
 
@@ -97,6 +103,7 @@ const fn build_box_id_by_position_id_lut() -> LookupTableByPositionId<u8> {
         let position = Position::from_id(position_id);
         let row0 = (position.row() - 1) / 3;
         let col0 = (position.col() - 1) / 3;
+
         table[position_id as usize] = row0 * 3 + col0 + 1;
         position_id += 1;
     }
@@ -104,6 +111,7 @@ const fn build_box_id_by_position_id_lut() -> LookupTableByPositionId<u8> {
     return table;
 }
 
+/// build lookup table that answers "what are the all the peer cell IDs of this cell?" for each cell
 const fn build_all_peers_mask_by_position_id_lut() -> LookupTableByPositionId<PeersMaskBits> {
     let mut all_peers_mask_lookup_table: LookupTableByPositionId<PeersMaskBits> = [0; TOTAL_POSITIONS as usize];
 
